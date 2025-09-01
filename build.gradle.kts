@@ -27,7 +27,8 @@ dependencies {
     // Spring Boot Core
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-security")
-    
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     // Database
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5")
     runtimeOnly("com.mysql:mysql-connector-j")
@@ -40,6 +41,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.5")
     testImplementation("org.springframework.security:spring-security-test")
+    testCompileOnly("org.projectlombok:lombok")
+    testAnnotationProcessor("org.projectlombok:lombok")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
