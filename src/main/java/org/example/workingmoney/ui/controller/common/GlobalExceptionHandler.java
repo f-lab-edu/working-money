@@ -61,7 +61,7 @@ public class GlobalExceptionHandler {
         }
         if (type instanceof AuthExceptionDescription auth) {
             return switch (auth) {
-                case Duplicated_EMAIL, Duplicated_NICKNAME -> HttpStatus.BAD_REQUEST;
+                case DUPLICATED_EMAIL, DUPLICATED_NICKNAME -> HttpStatus.BAD_REQUEST;
             };
         }
 

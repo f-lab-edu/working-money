@@ -5,24 +5,23 @@
 
   <insert id="insert" parameterType="org.example.workingmoney.repository.user.UserEntity"
     useGeneratedKeys="true" keyProperty="id" keyColumn="id">
-    insert into user (password_hash, nickname, email, created_at, updated_at)
-    values (#{passwordHash}, #{nickname}, #{email}, now(), now())
+    insert into user (password_hash, nickname, email, role, created_at, updated_at)
+    values (#{passwordHash}, #{nickname}, #{email}, #{role}, now(), now())
   </insert>
-
   <select id="findById" resultType="org.example.workingmoney.repository.user.UserEntity">
-    select id, password_hash, nickname, email, created_at, updated_at
+    select id, password_hash, nickname, email, role, created_at, updated_at
     from user
     where id = #{id}
   </select>
 
   <select id="findByEmail" resultType="org.example.workingmoney.repository.user.UserEntity">
-    select id, password_hash, nickname, email, created_at, updated_at
+    select id, password_hash, nickname, email, role, created_at, updated_at
     from user
     where email = #{email}
   </select>
 
   <select id="findByNickname" resultType="org.example.workingmoney.repository.user.UserEntity">
-    select id, password_hash, nickname, email, created_at, updated_at
+    select id, password_hash, nickname, email, role, created_at, updated_at
     from user
     where nickname = #{nickname}
   </select>
