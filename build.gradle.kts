@@ -32,6 +32,11 @@ dependencies {
     // Database
     implementation("org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.5")
     runtimeOnly("com.mysql:mysql-connector-j")
+
+    // Security
+    implementation("io.jsonwebtoken:jjwt-api:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+    implementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
     
     // Development Tools
     compileOnly("org.projectlombok:lombok")

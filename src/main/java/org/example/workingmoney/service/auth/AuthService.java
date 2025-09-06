@@ -25,7 +25,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void join(String email, String nickname, String password, UserRole role) {
+    public void join(String email, String nickname, String rawPassword, UserRole role) {
 
         userRepository.lockByEmail(email);
         userRepository.lockByNickname(nickname);
@@ -37,7 +37,7 @@ public class AuthService {
             throw new DuplicatedNicknameException();
         }
 
-        String hashedPassword = bCryptPasswordEncoder.encode(password);
+        String hashedPassword = bCryptPasswordEncoder.encode(rawPassword);
         userRepository.create(hashedPassword, nickname, email, role.name());
     }
 }

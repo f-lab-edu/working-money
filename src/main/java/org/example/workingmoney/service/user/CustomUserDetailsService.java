@@ -7,9 +7,11 @@ import org.example.workingmoney.repository.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-public class CustomUserDetailService implements UserDetailsService {
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 

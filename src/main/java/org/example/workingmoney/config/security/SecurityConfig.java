@@ -2,6 +2,8 @@ package org.example.workingmoney.config.security;
 
 import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.config.security.filter.LoginFilter;
+import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
+import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +33,7 @@ public class SecurityConfig {
 
     @Value("${app.cors.allowed-origins:${ALLOWED_ORIGINS}}")
     private String allowedOriginsProperty;
+    private final AuthTokenUtil authTokenUtil;
 
     private final AuthenticationConfiguration authenticationConfiguration;
 
@@ -48,9 +51,9 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
         List<String> validatedOrigins = validateOriginsProperty(allowedOriginsProperty);
-		configuration.setAllowedOrigins(validatedOrigins);
+        configuration.setAllowedOrigins(validatedOrigins);
         // TODO: setAllowedMethods, setAllowedHeaders, setAllowCredentials 설정 추후 수정 필요
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -65,6 +68,9 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), authTokenUtil);
+        loginFilter.setFilterProcessesUrl("/api/v1/auth/login");
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
@@ -75,12 +81,12 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/health", "/api/v1/auth/join").permitAll()
+                                .requestMatchers("/health", "/api/v1/auth/join", "/api/v1/auth/login").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .cors(Customizer.withDefaults())
                 .addFilterAt(
-                        new LoginFilter(authenticationManager(authenticationConfiguration)),
+                        loginFilter,
                         UsernamePasswordAuthenticationFilter.class
                 )
                 .build();

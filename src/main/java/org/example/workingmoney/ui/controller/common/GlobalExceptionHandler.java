@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
                     .map(DefaultMessageSourceResolvable::getDefaultMessage)
                     .filter(m -> m != null && !m.isBlank())
                     .distinct()
-                    .reduce((a, b) -> a + ", " + b)
+                    .reduce((a, b) -> a + " " + b)
                     .orElse(null);
 
             return Response.error(new InvalidFormatException(message));
