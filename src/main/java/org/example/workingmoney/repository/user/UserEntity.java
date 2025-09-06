@@ -17,8 +17,9 @@ public class UserEntity extends TimeBaseEntity {
     private final String passwordHash;
     private final String nickname;
     private final String email;
+    private final String role;
 
     public User toDomain() {
-        return new User(id, nickname, email);
+        return new User(id, nickname, email, passwordHash, role);
     }
 }

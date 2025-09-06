@@ -5,10 +5,10 @@ import org.example.workingmoney.service.common.exception.CustomException;
 public class DuplicatedEmailException extends CustomException {
 
     public DuplicatedEmailException() {
-        super(AuthExceptionDescription.Duplicated_EMAIL);
+        super(AuthExceptionDescription.DUPLICATED_EMAIL);
     }
 
     public DuplicatedEmailException(String message) {
-        super(AuthExceptionDescription.Duplicated_EMAIL, message);
+        super(AuthExceptionDescription.DUPLICATED_EMAIL, message);
     }
 }

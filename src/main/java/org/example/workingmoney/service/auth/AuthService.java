@@ -1,6 +1,7 @@
 package org.example.workingmoney.service.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.example.workingmoney.domain.entity.UserRole;
 import org.example.workingmoney.repository.user.UserRepository;
 import org.example.workingmoney.service.auth.exception.DuplicatedEmailException;
 import org.example.workingmoney.service.auth.exception.DuplicatedNicknameException;
@@ -24,7 +25,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void join(String email, String nickname, String password) {
+    public void join(String email, String nickname, String rawPassword, UserRole role) {
 
         userRepository.lockByEmail(email);
         userRepository.lockByNickname(nickname);
@@ -36,7 +37,7 @@ public class AuthService {
             throw new DuplicatedNicknameException();
         }
 
-        String hashedPassword = bCryptPasswordEncoder.encode(password);
-        userRepository.create(hashedPassword, nickname, email);
+        String hashedPassword = bCryptPasswordEncoder.encode(rawPassword);
+        userRepository.create(hashedPassword, nickname, email, role.name());
     }
 }
