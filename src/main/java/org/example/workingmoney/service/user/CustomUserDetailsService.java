@@ -2,6 +2,7 @@ package org.example.workingmoney.service.user;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.example.workingmoney.domain.entity.User;
 import org.example.workingmoney.repository.user.UserEntity;
 import org.example.workingmoney.repository.user.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,6 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException(username);
         }
 
-        return new CustomUserDetails(userEntity.get().toDomain());
+        User user = userEntity.get().toDomain();
+        return new CustomUserDetails(user.getEmail(), user.getPassword(), user.getRole());
     }
 }

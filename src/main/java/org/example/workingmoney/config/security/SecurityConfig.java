@@ -1,6 +1,7 @@
 package org.example.workingmoney.config.security;
 
 import lombok.RequiredArgsConstructor;
+import org.example.workingmoney.config.security.filter.JwtFilter;
 import org.example.workingmoney.config.security.filter.LoginFilter;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import jakarta.servlet.DispatcherType;
@@ -34,8 +35,10 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:${ALLOWED_ORIGINS}}")
     private String allowedOriginsProperty;
     private final AuthTokenUtil authTokenUtil;
-
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final String[] allowedPath = new String[] {
+            "/health", "/api/v1/auth/join", "/api/v1/auth/login"
+    };
 
     @Bean
     public BCryptPasswordEncoder bCryptPasswordEncoder() {
@@ -81,10 +84,11 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/health", "/api/v1/auth/join", "/api/v1/auth/login").permitAll()
+                                .requestMatchers(allowedPath).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .cors(Customizer.withDefaults())
+                .addFilterBefore(new JwtFilter(authTokenUtil, allowedPath), LoginFilter.class)
                 .addFilterAt(
                         loginFilter,
                         UsernamePasswordAuthenticationFilter.class

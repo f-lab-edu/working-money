@@ -1,10 +1,10 @@
 package org.example.workingmoney.config.security.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.security.Keys;
 import jakarta.validation.constraints.NotNull;
-import org.example.workingmoney.domain.entity.UserRole;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -33,15 +33,19 @@ public class AuthTokenUtil {
         return getClaim(token, ClaimNameConstants.ROLE);
     }
 
-    public JwtType getCategory(String token) {
+    public Optional<JwtType> getCategory(String token) {
 
         String category = getClaim(token, ClaimNameConstants.CATEGORY);
-        return JwtType.makeJwtType(category).orElseThrow();
+        return JwtType.makeJwtType(category);
     }
 
     public Boolean isExpired(String token) {
-
-        return getPayload(token).getExpiration().before(new Date());
+        try {
+            getPayload(token);
+            return false;
+        } catch (ExpiredJwtException e) {
+            return true;
+        }
     }
 
     public String createJwt(JwtType type, String username, String role) {
