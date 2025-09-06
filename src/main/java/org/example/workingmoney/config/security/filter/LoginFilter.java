@@ -122,7 +122,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setStatus(HttpServletResponse.SC_OK);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(
-                Response.error(new IllegalArgumentException(message), HttpServletResponse.SC_UNAUTHORIZED)
+                Response.error(new IllegalArgumentException(message))
         );
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.getWriter().write(jsonResponse);

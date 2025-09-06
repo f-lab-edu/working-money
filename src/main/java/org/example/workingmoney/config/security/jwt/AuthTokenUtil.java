@@ -2,9 +2,12 @@ package org.example.workingmoney.config.security.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.validation.constraints.NotNull;
+import java.security.SignatureException;
 import java.util.Optional;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -12,8 +15,11 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import org.springframework.stereotype.Service;
 
+@Slf4j
 @Component
+@Service
 public class AuthTokenUtil {
 
     @NotNull
@@ -45,6 +51,36 @@ public class AuthTokenUtil {
             return false;
         } catch (ExpiredJwtException e) {
             return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return true;
+        }
+    }
+
+    public boolean isValid(String token) {
+        try {
+            getPayload(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (JwtException e) {
+            return false;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public boolean hasValidSignature(String token) {
+        try {
+            getPayload(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            // 서명은 유효하지만 만료된 경우
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
         }
     }
 

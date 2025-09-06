@@ -11,8 +11,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import org.example.workingmoney.config.security.jwt.JwtType;
-import org.example.workingmoney.domain.entity.User;
-import org.example.workingmoney.repository.user.UserEntity;
 import org.example.workingmoney.service.user.CustomUserDetails;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -50,6 +48,14 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String accessToken = authorization.split(" ")[1];
+
+        if (!authTokenUtil.isValid(accessToken)) {
+
+            PrintWriter writer = response.getWriter();
+            writer.println("invalid access token");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
         if (authTokenUtil.isExpired(accessToken)) {
 

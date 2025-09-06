@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.config.security.filter.JwtFilter;
 import org.example.workingmoney.config.security.filter.LoginFilter;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
-import jakarta.servlet.DispatcherType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -37,7 +36,7 @@ public class SecurityConfig {
     private final AuthTokenUtil authTokenUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final String[] allowedPath = new String[] {
-            "/health", "/api/v1/auth/join", "/api/v1/auth/login"
+            "/health", "/api/v1/auth/join", "/api/v1/auth/login", "/api/v1/auth/reissue",
     };
 
     @Bean
@@ -78,6 +77,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
