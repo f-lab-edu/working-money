@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Component
-@Service
 public class AuthTokenUtil {
 
     @NotNull
