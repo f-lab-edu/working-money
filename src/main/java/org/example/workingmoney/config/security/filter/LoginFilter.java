@@ -110,7 +110,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException failed
-    ) throws IOException, ServletException {
+    ) throws IOException{
         log.debug("Unsuccessful authentication", failed);
         String message = failed.getMessage() != null ? failed.getMessage() : "login failed";
         configureLoginFailedResponse(response, message);
@@ -119,7 +119,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private void configureLoginFailedResponse(HttpServletResponse response, String message) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(
                 Response.error(new IllegalArgumentException(message))
