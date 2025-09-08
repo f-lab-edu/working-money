@@ -9,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.example.workingmoney.config.security.Constants;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import org.example.workingmoney.config.security.jwt.JwtType;
 import org.example.workingmoney.service.user.CustomUserDetails;
@@ -31,15 +32,15 @@ public class JwtFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authorization = request.getHeader("Authorization");
+        String authorization = request.getHeader(Constants.AUTHORIZATION);
 
-        if ((authorization == null || !authorization.startsWith("Bearer ")) && Arrays.asList(allowedPath).contains(request.getRequestURI())) {
+        if ((authorization == null || !authorization.startsWith(Constants.BEARER)) && Arrays.asList(allowedPath).contains(request.getRequestURI())) {
 
             filterChain.doFilter(request, response);
             return;
         }
 
-        if (authorization == null || !authorization.startsWith("Bearer ")) {
+        if (authorization == null || !authorization.startsWith(Constants.BEARER)) {
 
             PrintWriter writer = response.getWriter();
             writer.println("wrong access");
@@ -47,7 +48,7 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = authorization.split(" ")[1];
+        String accessToken = authorization.substring(Constants.BEARER.length());
 
         if (!authTokenUtil.isValid(accessToken)) {
 
