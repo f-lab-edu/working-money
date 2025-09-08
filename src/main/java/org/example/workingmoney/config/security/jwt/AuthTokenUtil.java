@@ -58,30 +58,7 @@ public class AuthTokenUtil {
     }
 
     public boolean isValid(String token) {
-        try {
-            getPayload(token);
-            return true;
-        } catch (ExpiredJwtException e) {
-            return true;
-        } catch (JwtException e) {
-            return false;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
-    public boolean hasValidSignature(String token) {
-        try {
-            getPayload(token);
-            return true;
-        } catch (ExpiredJwtException e) {
-            // 서명은 유효하지만 만료된 경우
-            return true;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
+        return hasValidSignature(token) && !isExpired(token);
     }
 
     public String createJwt(JwtType type, String username, String role) {
@@ -102,6 +79,18 @@ public class AuthTokenUtil {
 
     private String getClaim(String token, ClaimNameConstants claimNameConstants) {
         return getPayload(token).get(claimNameConstants.getValue(), String.class);
+    }
+
+    private boolean hasValidSignature(String token) {
+        try {
+            getPayload(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 }
 
