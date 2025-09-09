@@ -1,5 +1,6 @@
 package org.example.workingmoney.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.config.security.filter.JwtFilter;
 import org.example.workingmoney.config.security.filter.LoginFilter;
@@ -35,6 +36,7 @@ public class SecurityConfig {
     private String allowedOriginsProperty;
     private final AuthTokenUtil authTokenUtil;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final ObjectMapper objectMapper;
     private final String[] allowedPath = new String[] {
             "/health", "/api/v1/auth/join", "/api/v1/auth/login", "/api/v1/auth/reissue",
     };
@@ -70,7 +72,10 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        LoginFilter loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), authTokenUtil);
+        LoginFilter loginFilter = new LoginFilter(
+                authenticationManager(authenticationConfiguration),
+                authTokenUtil,
+                objectMapper);
         loginFilter.setFilterProcessesUrl("/api/v1/auth/login");
 
         return http

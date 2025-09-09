@@ -33,6 +33,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
     private final AuthTokenUtil authTokenUtil;
+    private final ObjectMapper objectMapper;
 
     @Override
     public Authentication attemptAuthentication(
@@ -52,7 +53,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                     request.getInputStream(),
                     StandardCharsets.UTF_8
             );
-            ObjectMapper objectMapper = new ObjectMapper();
             Map<String, String> messageMap = objectMapper.readValue(
                     messageBody,
                     new TypeReference<Map<String, String>>() {}
@@ -98,7 +98,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(
                 Response.ok(new AuthTokensResponse(accessToken, refreshToken))
         );
@@ -119,7 +118,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private void configureLoginFailedResponse(HttpServletResponse response, String message) throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        ObjectMapper objectMapper = new ObjectMapper();
         String jsonResponse = objectMapper.writeValueAsString(
                 Response.error(new IllegalArgumentException(message))
         );
