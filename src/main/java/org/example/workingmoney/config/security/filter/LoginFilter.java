@@ -1,6 +1,5 @@
 package org.example.workingmoney.config.security.filter;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -10,13 +9,13 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import org.example.workingmoney.config.security.jwt.JwtType;
 import org.example.workingmoney.service.user.CustomUserDetails;
 import org.example.workingmoney.ui.controller.common.Response;
+import org.example.workingmoney.ui.dto.request.LoginRequestDto;
 import org.example.workingmoney.ui.dto.response.AuthTokensResponse;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -53,13 +52,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
                     request.getInputStream(),
                     StandardCharsets.UTF_8
             );
-            Map<String, String> messageMap = objectMapper.readValue(
+            LoginRequestDto loginRequest = objectMapper.readValue(
                     messageBody,
-                    new TypeReference<Map<String, String>>() {}
+                    LoginRequestDto.class
             );
 
-            username = messageMap.get("username");
-            password = messageMap.get("password");
+            username = loginRequest.id();
+            password = loginRequest.password();
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     username,
