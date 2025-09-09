@@ -79,7 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
         String username = authTokenUtil.getUsername(accessToken);
         String role = authTokenUtil.getRole(accessToken);
 
-        CustomUserDetails customUserDetails = new CustomUserDetails(username, null, role);
+        CustomUserDetails customUserDetails = new CustomUserDetails(username, role);
 
         SecurityContext context = SecurityContextHolder.createEmptyContext();
         Authentication authentication = new UsernamePasswordAuthenticationToken(

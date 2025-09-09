@@ -8,12 +8,23 @@ import org.example.workingmoney.domain.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-@RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private final String username;
     private final String password;
     private final String role;
+
+    public CustomUserDetails(String username, String role) {
+        this.username = username;
+        this.role = role;
+        this.password = null;
+    }
+
+    public CustomUserDetails(String username, String password, String role) {
+        this.username = username;
+        this.role = role;
+        this.password = password;
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
