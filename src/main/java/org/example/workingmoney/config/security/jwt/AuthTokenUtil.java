@@ -3,6 +3,7 @@ package org.example.workingmoney.config.security.jwt;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
 import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,9 @@ public class AuthTokenUtil {
     @NotNull
     private SecretKey secretKey;
 
-    public AuthTokenUtil(@Value("${spring.jwt.secret}")String secret) {
-        secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), Jwts.SIG.HS256.key().build().getAlgorithm());
+    public AuthTokenUtil(@Value("${spring.jwt.secret}") String secret) {
+
+        secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
     public String getUsername(String token) {
