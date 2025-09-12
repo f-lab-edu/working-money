@@ -4,8 +4,8 @@ import org.example.workingmoney.service.common.exception.ExceptionDescribable;
 
 public enum AuthExceptionDescription implements ExceptionDescribable {
 
-    Duplicated_EMAIL(20001, "email exists"),
-    Duplicated_NICKNAME(20002, "nickname exists"),
+    DUPLICATED_EMAIL(20001, "email exists"),
+    DUPLICATED_NICKNAME(20002, "nickname exists"),
     ;
 
     private final int code;
