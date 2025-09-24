@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.config.security.filter.JwtFilter;
 import org.example.workingmoney.config.security.filter.LoginFilter;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
+import org.example.workingmoney.service.auth.AuthService;
+import org.example.workingmoney.service.user.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,7 +18,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -36,16 +37,15 @@ public class SecurityConfig {
     @Value("${app.cors.allowed-origins:${ALLOWED_ORIGINS}}")
     private String allowedOriginsProperty;
     private final AuthTokenUtil authTokenUtil;
+    private final AuthService authService;
+    private final UserService userService;
     private final AuthenticationConfiguration authenticationConfiguration;
     private final ObjectMapper objectMapper;
     private final String[] allowedPath = new String[] {
             "/health", "/api/v1/auth/join", "/api/v1/auth/login", "/api/v1/auth/reissue",
     };
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    
 
     @Bean
     public AuthenticationManager authenticationManager(
@@ -75,6 +75,8 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         LoginFilter loginFilter = new LoginFilter(
                 authenticationManager(authenticationConfiguration),
+                authService,
+                userService,
                 authTokenUtil,
                 objectMapper);
         loginFilter.setFilterProcessesUrl("/api/v1/auth/login");

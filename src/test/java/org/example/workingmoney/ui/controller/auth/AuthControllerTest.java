@@ -1,6 +1,7 @@
 package org.example.workingmoney.ui.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import org.example.workingmoney.domain.entity.UserRole;
 import org.example.workingmoney.service.auth.AuthService;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,9 @@ class AuthControllerTest {
     @MockitoBean
     private AuthService authService;
 
+    @MockitoBean
+    private AuthTokenUtil authTokenUtil;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
@@ -48,7 +52,7 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.code").value(1))
                 .andExpect(jsonPath("$.message").value("ok"));
 
         verify(authService, times(1))

@@ -211,4 +211,50 @@ class UserRepositoryTest {
         // then
         assertTrue(userRepository.findById(savedUserId).isEmpty());
     }
+
+    @Test
+    void id값_기반_refresh_token_업데이트_테스트() {
+
+        // given
+        String password = "test";
+        String nickname = "tester";
+        String email = "test@example.com";
+        String refreshToken = "test-refresh-token";
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
+        Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
+
+        // when
+        userRepository.updateRefreshTokenById(savedUserId, refreshToken);
+        
+        // then
+        String foundToken = userRepository.findRefreshTokenById(savedUserId).orElseThrow();
+        assertEquals(refreshToken, foundToken);
+    }
+
+    @Test
+    void refresh_token_미설정시_empty_반환_테스트() {
+
+        // given
+        String password = "test";
+        String nickname = "tester-no-token";
+        String email = "no-token@example.com";
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
+        Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
+
+        // when
+        var optionalToken = userRepository.findRefreshTokenById(savedUserId);
+
+        // then
+        assertTrue(optionalToken.isEmpty());
+    }
+
+    @Test
+    void 존재하지_않는_id_refresh_token_조회시_empty_반환_테스트() {
+
+        // when
+        var optionalToken = userRepository.findRefreshTokenById(999999999L);
+
+        // then
+        assertTrue(optionalToken.isEmpty());
+    }
 }

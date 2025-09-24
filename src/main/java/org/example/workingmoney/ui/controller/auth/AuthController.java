@@ -9,6 +9,7 @@ import org.example.workingmoney.service.auth.AuthService;
 import org.example.workingmoney.ui.controller.common.Response;
 import org.example.workingmoney.ui.dto.request.JoinRequestDto;
 import jakarta.validation.Valid;
+import org.example.workingmoney.ui.dto.request.LogoutRequestDto;
 import org.example.workingmoney.ui.dto.request.ReissueJwtRequestDto;
 import org.example.workingmoney.ui.dto.response.AuthTokensResponse;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -44,6 +45,12 @@ public class AuthController {
             throw new IllegalArgumentException("refresh token is invalid");
         }
 
+        if (!authService.findRefreshTokenById(reissueJwtRequestDto.id())
+                .equals(reissueJwtRequestDto.refreshToken())) {
+
+            throw new IllegalArgumentException("refresh token is invalid");
+        }
+
         if (authTokenUtil.isExpired(refreshToken)) {
 
             throw new IllegalArgumentException("refresh token is expired");
@@ -67,5 +74,13 @@ public class AuthController {
         return Response.ok(new AuthTokensResponse(newAccess, newRefresh));
     }
 
-    // TODO: 블랙리스트 기반 로그아웃 API 추가
+    @PostMapping("/logout")
+    public Response<Void> logout(@RequestBody LogoutRequestDto logoutRequestDto) {
+
+        authService.deleteRefreshToken(logoutRequestDto.id());
+
+        // TODO: 블랙리스트 기반 토큰만료 로직 추가
+
+        return Response.ok(null);
+    }
 }

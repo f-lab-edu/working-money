@@ -13,10 +13,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import org.example.workingmoney.config.security.jwt.JwtType;
+import org.example.workingmoney.domain.entity.User;
+import org.example.workingmoney.service.auth.AuthService;
 import org.example.workingmoney.service.user.CustomUserDetails;
+import org.example.workingmoney.service.user.UserService;
 import org.example.workingmoney.ui.controller.common.Response;
 import org.example.workingmoney.ui.dto.request.LoginRequestDto;
 import org.example.workingmoney.ui.dto.response.AuthTokensResponse;
+import org.example.workingmoney.ui.dto.response.LoginSuccessResponseDto;
+import org.example.workingmoney.ui.dto.response.UserInfoResponseDto;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -31,6 +36,8 @@ import org.springframework.util.StreamUtils;
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
+    private final UserService userService;
     private final AuthTokenUtil authTokenUtil;
     private final ObjectMapper objectMapper;
 
@@ -43,7 +50,8 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String username;
         String password;
 
-        if (request.getContentType() == null || !request.getContentType().contains("application/json")) {
+        if (request.getContentType() == null || !request.getContentType()
+                .contains("application/json")) {
             throw new AuthenticationServiceException("Content-Type is not application/json");
         }
 
@@ -90,15 +98,18 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String accessToken = authTokenUtil.createJwt(JwtType.ACCESS, username, role);
         String refreshToken = authTokenUtil.createJwt(JwtType.REFRESH, username, role);
+        User user = userService.findUserByEmail(username).orElseThrow();
 
-        // TODO: Refresh 토큰 저장
+        authService.updateRefreshToken(username, refreshToken);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_OK);
 
         String jsonResponse = objectMapper.writeValueAsString(
-                Response.ok(new AuthTokensResponse(accessToken, refreshToken))
+                Response.ok(new LoginSuccessResponseDto(
+                        new UserInfoResponseDto(user.getId(), user.getEmail(), user.getNickname()),
+                        new AuthTokensResponse(accessToken, refreshToken)))
         );
         response.getWriter().write(jsonResponse);
     }
@@ -108,13 +119,14 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             HttpServletRequest request,
             HttpServletResponse response,
             AuthenticationException failed
-    ) throws IOException{
+    ) throws IOException {
         log.debug("Unsuccessful authentication", failed);
         String message = failed.getMessage() != null ? failed.getMessage() : "login failed";
         configureLoginFailedResponse(response, message);
     }
 
-    private void configureLoginFailedResponse(HttpServletResponse response, String message) throws IOException {
+    private void configureLoginFailedResponse(HttpServletResponse response, String message)
+            throws IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         String jsonResponse = objectMapper.writeValueAsString(

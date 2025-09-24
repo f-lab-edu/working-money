@@ -59,7 +59,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public Response<Void> handleUnknown(Exception exception) {
-        return Response.error(new UnknownException());
+        return Response.error(new UnknownException(exception.getMessage()));
     }
 
     private HttpStatus mapToHttpStatus(CustomException exception) {

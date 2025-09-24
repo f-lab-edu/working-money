@@ -1,6 +1,5 @@
 package org.example.workingmoney.domain.entity;
 
-import jakarta.annotation.Nullable;
 import jakarta.annotation.Nonnull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

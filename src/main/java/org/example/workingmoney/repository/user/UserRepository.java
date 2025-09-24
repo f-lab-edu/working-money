@@ -3,7 +3,6 @@ package org.example.workingmoney.repository.user;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Optional;
-import org.example.workingmoney.domain.entity.UserRole;
 
 @Mapper
 public interface UserRepository {
@@ -34,4 +33,10 @@ public interface UserRepository {
     void updateNickname(Long id, String nickname);
 
     void deleteById(Long id);
+
+    void updateRefreshTokenById(Long id, String refreshToken);
+
+    void updateRefreshTokenByEmail(String email, String refreshToken);
+
+    Optional<String> findRefreshTokenById(Long id);
 }
