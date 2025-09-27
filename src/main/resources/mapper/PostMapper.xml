@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.example.workingmoney.repository.post.PostMapper">
+
+  <insert id="insert" parameterType="org.example.workingmoney.repository.post.PostEntity"
+    useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+    insert into post (user_id, category_code, title, content, like_count, created_at, updated_at)
+    values (#{userId}, #{categoryCode}, #{title}, #{content}, #{likeCount}, now(), now())
+  </insert>
+
+  <update id="update" parameterType="org.example.workingmoney.repository.post.PostEntity">
+    update post
+    set category_code = #{categoryCode},
+        title = #{title},
+        content = #{content},
+        updated_at = now()
+    where id = #{id}
+  </update>
+
+  <delete id="deleteById">
+    delete from post
+    where id = #{id}
+  </delete>
+
+  <select id="findById" resultType="org.example.workingmoney.repository.post.PostEntity">
+    select id, user_id, category_code, title, content, like_count, created_at, updated_at
+    from post
+    where id = #{id}
+  </select>
+
+</mapper>
+
+
