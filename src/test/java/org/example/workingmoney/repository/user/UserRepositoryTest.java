@@ -3,6 +3,7 @@ package org.example.workingmoney.repository.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
+import org.example.workingmoney.domain.entity.UserRole;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,7 +27,7 @@ class UserRepositoryTest {
         String email = "test@example.com";
 
         // when
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // then
         UserEntity foundByEmailUserEntity = userRepository.findByEmail(email).orElseThrow();
@@ -44,7 +45,7 @@ class UserRepositoryTest {
         String email = "test@example.com";
 
         // when
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // then
         UserEntity foundByEmailUserEntity = userRepository.findByEmail(email).orElseThrow();
@@ -62,7 +63,7 @@ class UserRepositoryTest {
         String password = "test";
         String nickname = "tester";
         String email = "test@example.com";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when
         UserEntity foundByEmailUserEntity = userRepository.findByEmail(email).orElseThrow();
@@ -79,7 +80,7 @@ class UserRepositoryTest {
         String password = "test";
         String nickname = "tester";
         String email = "test@example.com";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when
         UserEntity foundUserEntity = userRepository.findByEmail(email).orElseThrow();
@@ -97,7 +98,7 @@ class UserRepositoryTest {
         String password = "test";
         String nickname = "tester";
         String email = "test@example.com";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when
         UserEntity foundUserEntity = userRepository.findByNickname(nickname).orElseThrow();
@@ -114,7 +115,7 @@ class UserRepositoryTest {
         String password = "test";
         String nickname = "tester";
         String email = "exist@example.com";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when & then
         assertTrue(userRepository.existsByEmail(email));
@@ -127,7 +128,7 @@ class UserRepositoryTest {
         String password = "test";
         String nickname = "tester-exists";
         String email = "tester-exists@example.com";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when & then
         assertTrue(userRepository.existsByNickname(nickname));
@@ -142,7 +143,7 @@ class UserRepositoryTest {
         String nickname = "tester";
         String email = "test@example.com";
         String newNickname = "tester2";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when
         Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
@@ -162,7 +163,7 @@ class UserRepositoryTest {
         String email = "test@example.com";
 
         // when
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // then
         Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
@@ -178,7 +179,7 @@ class UserRepositoryTest {
         String nickname = "tester";
         String email = "test@example.com";
         String newNickname = "tester2";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
         Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
         LocalDateTime beforeUpdatedAt = userRepository.findById(savedUserId).orElseThrow().getUpdatedAt();
 
@@ -201,7 +202,7 @@ class UserRepositoryTest {
         String password = "test";
         String nickname = "tester";
         String email = "test@example.com";
-        userRepository.create(password, nickname, email);
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
 
         // when
         Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
@@ -209,5 +210,51 @@ class UserRepositoryTest {
 
         // then
         assertTrue(userRepository.findById(savedUserId).isEmpty());
+    }
+
+    @Test
+    void id값_기반_refresh_token_업데이트_테스트() {
+
+        // given
+        String password = "test";
+        String nickname = "tester";
+        String email = "test@example.com";
+        String refreshToken = "test-refresh-token";
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
+        Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
+
+        // when
+        userRepository.updateRefreshTokenById(savedUserId, refreshToken);
+        
+        // then
+        String foundToken = userRepository.findRefreshTokenById(savedUserId).orElseThrow();
+        assertEquals(refreshToken, foundToken);
+    }
+
+    @Test
+    void refresh_token_미설정시_empty_반환_테스트() {
+
+        // given
+        String password = "test";
+        String nickname = "tester-no-token";
+        String email = "no-token@example.com";
+        userRepository.create(password, nickname, email, UserRole.NORMAL_USER.name());
+        Long savedUserId = userRepository.findByEmail(email).orElseThrow().getId();
+
+        // when
+        var optionalToken = userRepository.findRefreshTokenById(savedUserId);
+
+        // then
+        assertTrue(optionalToken.isEmpty());
+    }
+
+    @Test
+    void 존재하지_않는_id_refresh_token_조회시_empty_반환_테스트() {
+
+        // when
+        var optionalToken = userRepository.findRefreshTokenById(999999999L);
+
+        // then
+        assertTrue(optionalToken.isEmpty());
     }
 }

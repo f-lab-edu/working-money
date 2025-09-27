@@ -1,0 +1,138 @@
+package org.example.workingmoney.config.security.filter;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.Iterator;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
+import org.example.workingmoney.config.security.jwt.JwtType;
+import org.example.workingmoney.domain.entity.User;
+import org.example.workingmoney.service.auth.AuthService;
+import org.example.workingmoney.service.user.CustomUserDetails;
+import org.example.workingmoney.service.user.UserService;
+import org.example.workingmoney.ui.controller.common.Response;
+import org.example.workingmoney.ui.dto.request.LoginRequestDto;
+import org.example.workingmoney.ui.dto.response.AuthTokensResponse;
+import org.example.workingmoney.ui.dto.response.LoginSuccessResponseDto;
+import org.example.workingmoney.ui.dto.response.UserInfoResponseDto;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationServiceException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.util.StreamUtils;
+
+@Slf4j
+@RequiredArgsConstructor
+public class LoginFilter extends UsernamePasswordAuthenticationFilter {
+
+    private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
+    private final UserService userService;
+    private final AuthTokenUtil authTokenUtil;
+    private final ObjectMapper objectMapper;
+
+    @Override
+    public Authentication attemptAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response
+    ) throws AuthenticationException {
+
+        String username;
+        String password;
+
+        if (request.getContentType() == null || !request.getContentType()
+                .contains("application/json")) {
+            throw new AuthenticationServiceException("Content-Type is not application/json");
+        }
+
+        try {
+            String messageBody = StreamUtils.copyToString(
+                    request.getInputStream(),
+                    StandardCharsets.UTF_8
+            );
+            LoginRequestDto loginRequest = objectMapper.readValue(
+                    messageBody,
+                    LoginRequestDto.class
+            );
+
+            username = loginRequest.id();
+            password = loginRequest.password();
+
+            UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                    username,
+                    password
+            );
+            return authenticationManager.authenticate(authToken);
+
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            throw new AuthenticationServiceException("json parsing failed", e);
+        }
+    }
+
+
+    @Override
+    protected void successfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            FilterChain chain,
+            Authentication authResult
+    ) throws IOException, ServletException {
+
+        final CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        final String username = customUserDetails.getUsername();
+        final Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+        final Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        final GrantedAuthority grantedAuthority = iterator.next();
+        final String role = grantedAuthority.getAuthority();
+
+        final String accessToken = authTokenUtil.createJwt(JwtType.ACCESS, username, role);
+        final String refreshToken = authTokenUtil.createJwt(JwtType.REFRESH, username, role);
+        final User user = userService.findUserByEmail(username).orElseThrow();
+
+        authService.updateRefreshToken(username, refreshToken);
+
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
+
+        String jsonResponse = objectMapper.writeValueAsString(
+                Response.ok(new LoginSuccessResponseDto(
+                        new UserInfoResponseDto(user.getId(), user.getEmail(), user.getNickname()),
+                        new AuthTokensResponse(accessToken, refreshToken)))
+        );
+        response.getWriter().write(jsonResponse);
+    }
+
+    @Override
+    protected void unsuccessfulAuthentication(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException failed
+    ) throws IOException {
+        log.debug("Unsuccessful authentication", failed);
+        final String message = failed.getMessage() != null ? failed.getMessage() : "login failed";
+        configureLoginFailedResponse(response, message);
+    }
+
+    private void configureLoginFailedResponse(HttpServletResponse response, String message)
+            throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        String jsonResponse = objectMapper.writeValueAsString(
+                Response.error(new IllegalArgumentException(message))
+        );
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.getWriter().write(jsonResponse);
+    }
+}

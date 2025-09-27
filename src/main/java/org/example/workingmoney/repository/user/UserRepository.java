@@ -7,8 +7,8 @@ import java.util.Optional;
 @Mapper
 public interface UserRepository {
 
-    default void create(String passwordHash, String nickname, String email) {
-        insert(new UserEntity(passwordHash, nickname, email));
+    default void create(String passwordHash, String nickname, String email, String role) {
+        insert(new UserEntity(passwordHash, nickname, email, role));
     }
 
     /**
@@ -33,4 +33,10 @@ public interface UserRepository {
     void updateNickname(Long id, String nickname);
 
     void deleteById(Long id);
+
+    void updateRefreshTokenById(Long id, String refreshToken);
+
+    void updateRefreshTokenByEmail(String email, String refreshToken);
+
+    Optional<String> findRefreshTokenById(Long id);
 }

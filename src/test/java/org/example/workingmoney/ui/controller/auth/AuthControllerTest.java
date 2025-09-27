@@ -1,6 +1,8 @@
 package org.example.workingmoney.ui.controller.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
+import org.example.workingmoney.domain.entity.UserRole;
 import org.example.workingmoney.service.auth.AuthService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -27,6 +30,9 @@ class AuthControllerTest {
 
     @MockitoBean
     private AuthService authService;
+
+    @MockitoBean
+    private AuthTokenUtil authTokenUtil;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -46,11 +52,11 @@ class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.code").value(0))
+                .andExpect(jsonPath("$.code").value(1))
                 .andExpect(jsonPath("$.message").value("ok"));
 
         verify(authService, times(1))
-                .join("test@example.com", "tester1", "Password1234");
+                .join("test@example.com", "tester1", "Password1234", UserRole.NORMAL_USER);
     }
 
     @Test
@@ -70,7 +76,7 @@ class AuthControllerTest {
                         .content(json))
                 .andExpect(status().isBadRequest());
 
-        verify(authService, never()).join(anyString(), anyString(), anyString());
+        verify(authService, never()).join(anyString(), anyString(), anyString(), eq(UserRole.NORMAL_USER));
     }
 
     @Test
@@ -91,7 +97,7 @@ class AuthControllerTest {
                         .content(json))
                 .andExpect(status().isBadRequest());
 
-        verify(authService, never()).join(anyString(), anyString(), anyString());
+        verify(authService, never()).join(anyString(), anyString(), anyString(), eq(UserRole.NORMAL_USER));
     }
 
     @Test
@@ -112,6 +118,6 @@ class AuthControllerTest {
                         .content(json))
                 .andExpect(status().isBadRequest());
 
-        verify(authService, never()).join(anyString(), anyString(), anyString());
+        verify(authService, never()).join(anyString(), anyString(), anyString(), eq(UserRole.NORMAL_USER));
     }
 }

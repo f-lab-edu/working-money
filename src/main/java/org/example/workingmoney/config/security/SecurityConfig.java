@@ -1,15 +1,25 @@
 package org.example.workingmoney.config.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import org.example.workingmoney.config.security.filter.JwtFilter;
+import org.example.workingmoney.config.security.filter.LoginFilter;
+import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
+import org.example.workingmoney.service.auth.AuthService;
+import org.example.workingmoney.service.user.UserService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -21,21 +31,34 @@ import java.util.stream.Collectors;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     @Value("${app.cors.allowed-origins:${ALLOWED_ORIGINS}}")
     private String allowedOriginsProperty;
+    private final AuthTokenUtil authTokenUtil;
+    private final AuthService authService;
+    private final UserService userService;
+    private final AuthenticationConfiguration authenticationConfiguration;
+    private final ObjectMapper objectMapper;
+    private final String[] allowedPath = new String[] {
+            "/health", "/api/v1/auth/join", "/api/v1/auth/login", "/api/v1/auth/reissue",
+    };
+
+    
 
     @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration
+    ) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-		CorsConfiguration configuration = new CorsConfiguration();
+        CorsConfiguration configuration = new CorsConfiguration();
         List<String> validatedOrigins = validateOriginsProperty(allowedOriginsProperty);
-		configuration.setAllowedOrigins(validatedOrigins);
+        configuration.setAllowedOrigins(validatedOrigins);
         // TODO: setAllowedMethods, setAllowedHeaders, setAllowCredentials 설정 추후 수정 필요
         configuration.setAllowedMethods(Collections.singletonList("*"));
         configuration.setAllowedHeaders(List.of("*"));
@@ -50,20 +73,35 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        LoginFilter loginFilter = new LoginFilter(
+                authenticationManager(authenticationConfiguration),
+                authService,
+                userService,
+                authTokenUtil,
+                objectMapper);
+        loginFilter.setFilterProcessesUrl("/api/v1/auth/login");
+
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
+                .logout(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth ->
                         auth
-                                .requestMatchers("/health", "/api/v1/auth/join").permitAll()
+                                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .requestMatchers(allowedPath).permitAll()
                                 .anyRequest().authenticated()
                 )
                 .cors(Customizer.withDefaults())
+                .addFilterBefore(new JwtFilter(authTokenUtil, allowedPath), LoginFilter.class)
+                .addFilterAt(
+                        loginFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
                 .build();
     }
 
