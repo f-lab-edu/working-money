@@ -16,10 +16,12 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional
     public boolean checkEmailDuplicate(String email) {
         return !userRepository.existsByEmail(email);
     }
 
+    @Transactional
     public boolean checkNicknameDuplicate(String nickname) {
         return !userRepository.existsByNickname(nickname);
     }
@@ -41,22 +43,27 @@ public class AuthService {
         userRepository.create(hashedPassword, nickname, email, role.name());
     }
 
+    @Transactional
     public void updateRefreshToken(Long id, String refreshToken) {
         userRepository.updateRefreshTokenById(id, refreshToken);
     }
 
+    @Transactional
     public void updateRefreshToken(String email, String refreshToken) {
         userRepository.updateRefreshTokenByEmail(email, refreshToken);
     }
 
+    @Transactional
     public void deleteRefreshToken(Long id) {
         userRepository.updateRefreshTokenById(id, null);
     }
 
+    @Transactional
     public void deleteRefreshToken(String email) {
         userRepository.updateRefreshTokenByEmail(email, null);
     }
 
+    @Transactional
     public String findRefreshTokenById(Long id) {
         return userRepository.findRefreshTokenById(id).orElseThrow();
     }
