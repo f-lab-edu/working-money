@@ -89,16 +89,16 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             Authentication authResult
     ) throws IOException, ServletException {
 
-        CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
-        String username = customUserDetails.getUsername();
-        Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
-        Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
-        GrantedAuthority grantedAuthority = iterator.next();
-        String role = grantedAuthority.getAuthority();
+        final CustomUserDetails customUserDetails = (CustomUserDetails) authResult.getPrincipal();
+        final String username = customUserDetails.getUsername();
+        final Collection<? extends GrantedAuthority> authorities = authResult.getAuthorities();
+        final Iterator<? extends GrantedAuthority> iterator = authorities.iterator();
+        final GrantedAuthority grantedAuthority = iterator.next();
+        final String role = grantedAuthority.getAuthority();
 
-        String accessToken = authTokenUtil.createJwt(JwtType.ACCESS, username, role);
-        String refreshToken = authTokenUtil.createJwt(JwtType.REFRESH, username, role);
-        User user = userService.findUserByEmail(username).orElseThrow();
+        final String accessToken = authTokenUtil.createJwt(JwtType.ACCESS, username, role);
+        final String refreshToken = authTokenUtil.createJwt(JwtType.REFRESH, username, role);
+        final User user = userService.findUserByEmail(username).orElseThrow();
 
         authService.updateRefreshToken(username, refreshToken);
 
@@ -121,7 +121,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
             AuthenticationException failed
     ) throws IOException {
         log.debug("Unsuccessful authentication", failed);
-        String message = failed.getMessage() != null ? failed.getMessage() : "login failed";
+        final String message = failed.getMessage() != null ? failed.getMessage() : "login failed";
         configureLoginFailedResponse(response, message);
     }
 
