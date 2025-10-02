@@ -1,7 +1,7 @@
 package org.example.workingmoney.domain.entity;
 
-import jakarta.annotation.Nonnull;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.ToString;
 
@@ -10,14 +10,14 @@ import lombok.ToString;
 @RequiredArgsConstructor
 public class User {
 
-    @Nonnull
+    @NonNull
     private final Long id;
-    @Nonnull
+    @NonNull
     private final String nickname;
-    @Nonnull
+    @NonNull
     private final String email;
-    @Nonnull
+    @NonNull
     private final String password;
-    @Nonnull
+    @NonNull
     private final String role;
 }

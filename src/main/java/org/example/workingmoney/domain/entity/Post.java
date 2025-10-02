@@ -1,29 +1,29 @@
 package org.example.workingmoney.domain.entity;
 
-import jakarta.annotation.Nonnull;
 import lombok.Getter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
 public class Post {
 
-    @Nonnull
+    @NonNull
     private final Long id;
 
-    @Nonnull
+    @NonNull
     private final String userId;
 
-    @Nonnull
+    @NonNull
     private final String categoryCode;
 
-    @Nonnull
+    @NonNull
     private final String title;
 
-    @Nonnull
+    @NonNull
     private final String content;
 
-    @Nonnull
+    @NonNull
     private final Long likeCount;
 }
 
