@@ -15,12 +15,28 @@ import org.example.workingmoney.repository.common.TimeBaseEntity;
 public class PostEntity extends TimeBaseEntity {
 
     @Setter
-    private Long id;
+    private long id;
     private final String userId;
-    private final String categoryCode;
-    private final String title;
-    private final String content;
+    @Setter
+    private String categoryCode;
+    @Setter
+    private String title;
+    @Setter
+    private String content;
     private final Long likeCount;
+
+    public PostEntity(
+            String userId,
+            String categoryCode,
+            String title,
+            String content) {
+
+        this.userId = userId;
+        this.categoryCode = categoryCode;
+        this.title = title;
+        this.content = content;
+        this.likeCount = 0L;
+    }
 
     public Post toDomain() {
         return new Post(id, userId, categoryCode, title, content, likeCount);

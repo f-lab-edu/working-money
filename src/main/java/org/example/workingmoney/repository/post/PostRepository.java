@@ -1,6 +1,7 @@
 package org.example.workingmoney.repository.post;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.example.workingmoney.domain.entity.Post;
 import org.springframework.stereotype.Repository;
 
@@ -13,7 +14,7 @@ public class PostRepository {
     private final PostMapper mapper;
 
     public Post create(String userId, String categoryCode, String title, String content) {
-        PostEntity entity = new PostEntity(userId, categoryCode, title, content, 0L);
+        PostEntity entity = new PostEntity(userId, categoryCode, title, content);
         mapper.insert(entity);
         return entity.toDomain();
     }
@@ -23,8 +24,10 @@ public class PostRepository {
     }
 
     public Post update(Long id, String userId, String categoryCode, String title, String content) {
-        PostEntity entity = new PostEntity(userId, categoryCode, title, content, 0L);
-        entity.setId(id);
+        PostEntity entity = mapper.findById(id).orElseThrow();
+        entity.setCategoryCode(categoryCode);
+        entity.setTitle(title);
+        entity.setContent(content);
         mapper.update(entity);
         return findById(id).orElseThrow();
     }
