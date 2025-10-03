@@ -106,7 +106,7 @@ class PostServiceTest {
         // when & then
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> postService.update(id, otherUserId, categoryCode, title, content));
-        assertEquals("본인 게시글만 수정할 수 있습니다.", ex.getMessage());
+        assertEquals("사용자가 작성한 글이 아닙니다.", ex.getMessage());
         verify(postRepository, times(1)).findById(id);
         verify(postRepository, never()).update(anyLong(), anyString(), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(postRepository);
@@ -125,7 +125,7 @@ class PostServiceTest {
         // when & then
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> postService.delete(id, otherUserId));
-        assertEquals("본인 게시글만 삭제할 수 있습니다.", ex.getMessage());
+        assertEquals("사용자가 작성한 글이 아닙니다.", ex.getMessage());
         verify(postRepository, times(1)).findById(id);
         verify(postRepository, never()).deleteById(anyLong());
         verifyNoMoreInteractions(postRepository);

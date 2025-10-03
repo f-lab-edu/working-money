@@ -5,21 +5,22 @@ import static java.lang.annotation.ElementType.FIELD;
 import jakarta.validation.Constraint;
 import jakarta.validation.ReportAsSingleViolation;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import org.example.workingmoney.common.constants.PostConstants;
 
 @Target(FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {})
 @NotBlank
-@Size(min = 2, max = 10)
-@Pattern(regexp = "^[A-Za-z0-9가-힣]+$")
+@Size(min = PostConstants.MIN_POST_TITLE_LENGTH, max = PostConstants.MAX_POST_TITLE_LENGTH)
 @ReportAsSingleViolation
-public @interface ValidNickname {
-    String message() default "유효하지 않은 닉네임입니다.";
+public @interface ValidPostTitle {
+
+    String message() default "제목은 " + PostConstants.MIN_POST_TITLE_LENGTH + "자 이상, "
+            + PostConstants.MAX_POST_TITLE_LENGTH + "자 이하이어야 합니다.";
     Class<?>[] groups() default {};
     Class<? extends jakarta.validation.Payload>[] payload() default {};
 }
