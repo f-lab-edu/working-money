@@ -64,7 +64,7 @@ class PostServiceTest {
         setAuthenticatedUser(userId);
 
         // when
-        Post actual = postService.update(id, categoryCode, title, content);
+        Post actual = postService.update(id, userId, categoryCode, title, content);
 
         // then
         assertSame(updated, actual);
@@ -83,7 +83,7 @@ class PostServiceTest {
         setAuthenticatedUser(userId);
 
         // when
-        postService.delete(id);
+        postService.delete(id, userId);
 
         // then
         verify(postRepository, times(1)).deleteById(id);
@@ -105,7 +105,7 @@ class PostServiceTest {
 
         // when & then
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> postService.update(id, categoryCode, title, content));
+                () -> postService.update(id, otherUserId, categoryCode, title, content));
         assertEquals("본인 게시글만 수정할 수 있습니다.", ex.getMessage());
         verify(postRepository, times(1)).findById(id);
         verify(postRepository, never()).update(anyLong(), anyString(), anyString(), anyString(), anyString());
@@ -124,7 +124,7 @@ class PostServiceTest {
 
         // when & then
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
-                () -> postService.delete(id));
+                () -> postService.delete(id, otherUserId));
         assertEquals("본인 게시글만 삭제할 수 있습니다.", ex.getMessage());
         verify(postRepository, times(1)).findById(id);
         verify(postRepository, never()).deleteById(anyLong());
