@@ -25,22 +25,22 @@ public class PostService {
             String categoryCode,
             String title,
             String content) {
-        Post existing = postRepository.findById(id).orElseThrow();
-
-        if (!existing.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("본인 게시글만 수정할 수 있습니다.");
-        }
+        validateOwner(id, userId);
 
         return postRepository.update(id, userId, categoryCode, title, content);
     }
 
     @Transactional
     public void delete(Long id, String userId) {
-        Post existing = postRepository.findById(id).orElseThrow();
-        if (!existing.getUserId().equals(userId)) {
-            throw new IllegalArgumentException("본인 게시글만 삭제할 수 있습니다.");
-        }
+        validateOwner(id, userId);
 
         postRepository.deleteById(id);
+    }
+
+    private void validateOwner(Long postId, String userId) {
+        Post existingPost = postRepository.findById(postId).orElseThrow();
+        if (!existingPost.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("사용자가 작성한 글이 아닙니다.");
+        }
     }
 }
