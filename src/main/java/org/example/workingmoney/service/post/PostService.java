@@ -1,0 +1,46 @@
+package org.example.workingmoney.service.post;
+
+import lombok.RequiredArgsConstructor;
+import org.example.workingmoney.domain.entity.Post;
+import org.example.workingmoney.repository.post.PostRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+
+@Service
+@RequiredArgsConstructor
+public class PostService {
+
+    private final PostRepository postRepository;
+
+    @Transactional
+    public Post create(String userId, String categoryCode, String title, String content) {
+        return postRepository.create(userId, categoryCode, title, content);
+    }
+
+    @Transactional
+    public Post update(
+            Long id,
+            String userId,
+            String categoryCode,
+            String title,
+            String content) {
+        validateOwner(id, userId);
+
+        return postRepository.update(id, userId, categoryCode, title, content);
+    }
+
+    @Transactional
+    public void delete(Long id, String userId) {
+        validateOwner(id, userId);
+
+        postRepository.deleteById(id);
+    }
+
+    private void validateOwner(Long postId, String userId) {
+        Post existingPost = postRepository.findById(postId).orElseThrow();
+        if (!existingPost.getUserId().equals(userId)) {
+            throw new IllegalArgumentException("사용자가 작성한 글이 아닙니다.");
+        }
+    }
+}

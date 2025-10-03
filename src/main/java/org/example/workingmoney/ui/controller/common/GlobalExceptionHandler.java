@@ -7,6 +7,7 @@ import org.example.workingmoney.service.common.exception.InvalidFormatException;
 import org.example.workingmoney.service.common.exception.UnknownException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,6 +55,12 @@ public class GlobalExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Response<Void> handleNoResourceFoundException(Exception exception) {
         return Response.error(new IllegalArgumentException(exception.getMessage()));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public Response<Void> handleHttpMessageNotReadable(HttpMessageNotReadableException exception) {
+        return Response.error(new InvalidFormatException(exception.getMessage()));
     }
 
     @ExceptionHandler(Exception.class)

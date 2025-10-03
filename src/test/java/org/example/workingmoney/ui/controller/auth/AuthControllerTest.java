@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.example.workingmoney.config.security.jwt.AuthTokenUtil;
 import org.example.workingmoney.domain.entity.UserRole;
 import org.example.workingmoney.service.auth.AuthService;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;

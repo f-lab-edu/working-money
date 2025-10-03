@@ -10,7 +10,8 @@ import jakarta.validation.constraints.Size;
 
 import java.lang.annotation.*;
 
-@Target(FIELD)@Retention(RetentionPolicy.RUNTIME)
+@Target(FIELD)
+@Retention(RetentionPolicy.RUNTIME)
 @Constraint(validatedBy = {})
 @NotBlank
 @Size(min = 12)

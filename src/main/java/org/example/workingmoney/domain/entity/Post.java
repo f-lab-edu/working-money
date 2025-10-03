@@ -3,21 +3,29 @@ package org.example.workingmoney.domain.entity;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
-@ToString
 @Getter
 @RequiredArgsConstructor
-public class User {
+public class Post {
 
     @NonNull
     private final Long id;
+
     @NonNull
-    private final String nickname;
+    private final String userId;
+
     @NonNull
-    private final String email;
+    private final String categoryCode;
+
     @NonNull
-    private final String password;
+    private final String title;
+
     @NonNull
-    private final String role;
+    private final String content;
+
+    @NonNull
+    private final Long likeCount;
 }
+
+
+
