@@ -23,6 +23,11 @@ public enum PostCategory {
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
     public static PostCategory from(String value) {
+
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        
         return Arrays.stream(values())
                 .filter(c -> c.code.equals(value))
                 .findFirst()

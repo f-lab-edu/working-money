@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.domain.entity.Post;
 import org.example.workingmoney.domain.entity.PostCategory;
 import org.example.workingmoney.service.common.SecurityProvider;
+import org.example.workingmoney.domain.entity.CursorSlice;
 import org.example.workingmoney.service.post.PostService;
 import org.example.workingmoney.ui.controller.common.Response;
 import org.example.workingmoney.ui.dto.request.post.CreatePostRequestDto;
 import org.example.workingmoney.ui.dto.request.post.UpdatePostRequestDto;
+import org.example.workingmoney.ui.dto.response.post.PostCursorResponseDto;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -50,6 +52,20 @@ public class PostController {
 
         return Response.ok(null);
     }
+
+    @GetMapping
+    public Response<PostCursorResponseDto> getPosts(
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(defaultValue = "20") Integer size) {
+        PostCategory postCategory = PostCategory.from(category);
+        CursorSlice<Post> slice = postService.getPostsWithCursor(
+                postCategory != null ? postCategory.getCode() : null,
+                cursor,
+                size
+        );
+        PostCursorResponseDto response = PostCursorResponseDto.fromSlice(slice);
+
+        return Response.ok(response);
+    }
 }
-
-

@@ -3,8 +3,11 @@ package org.example.workingmoney.service.post;
 import lombok.RequiredArgsConstructor;
 import org.example.workingmoney.domain.entity.Post;
 import org.example.workingmoney.repository.post.PostRepository;
+import org.example.workingmoney.domain.entity.CursorSlice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 
 @Service
@@ -35,6 +38,12 @@ public class PostService {
         validateOwner(id, userId);
 
         postRepository.deleteById(id);
+    }
+
+    @Transactional
+    public CursorSlice<Post> getPostsWithCursor(String categoryCode, Long cursor, int size) {
+        List<Post> posts = postRepository.findPosts(categoryCode, cursor, size + 1);
+        return CursorSlice.createCursorSlice(posts, size, Post::getId);
     }
 
     private void validateOwner(Long postId, String userId) {
