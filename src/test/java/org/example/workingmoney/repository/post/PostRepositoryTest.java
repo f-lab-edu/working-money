@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.workingmoney.domain.entity.Post;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -29,14 +30,14 @@ class PostRepositoryTest {
         Post created = postRepository.create(userId, categoryCode, title, content);
 
         // then
-        assertNotNull(created.getId());
-        Post found = postRepository.findById(created.getId()).orElseThrow();
-        assertThat(found.getId()).isEqualTo(created.getId());
-        assertThat(found.getUserId()).isEqualTo(userId);
-        assertThat(found.getCategoryCode()).isEqualTo(categoryCode);
-        assertThat(found.getTitle()).isEqualTo(title);
-        assertThat(found.getContent()).isEqualTo(content);
-        assertThat(found.getLikeCount()).isEqualTo(0L);
+        assertNotNull(created.id());
+        Post found = postRepository.getById(created.id());
+        assertThat(found.id()).isEqualTo(created.id());
+        assertThat(found.userId()).isEqualTo(userId);
+        assertThat(found.categoryCode()).isEqualTo(categoryCode);
+        assertThat(found.title()).isEqualTo(title);
+        assertThat(found.content()).isEqualTo(content);
+        assertThat(found.likeCount()).isEqualTo(0L);
     }
 
     @Test
@@ -48,7 +49,7 @@ class PostRepositoryTest {
         String title = "title1";
         String content = "content1";
         Post created = postRepository.create(userId, categoryCode, title, content);
-        Long id = created.getId();
+        Long id = created.id();
 
         // when
         String newCategory = "american stock";
@@ -57,12 +58,12 @@ class PostRepositoryTest {
         Post updated = postRepository.update(id, userId, newCategory, newTitle, newContent);
 
         // then
-        assertThat(updated.getId()).isEqualTo(id);
-        assertThat(updated.getUserId()).isEqualTo(userId);
-        assertThat(updated.getCategoryCode()).isEqualTo(newCategory);
-        assertThat(updated.getTitle()).isEqualTo(newTitle);
-        assertThat(updated.getContent()).isEqualTo(newContent);
-        assertThat(updated.getLikeCount()).isEqualTo(created.getLikeCount());
+        assertThat(updated.id()).isEqualTo(id);
+        assertThat(updated.userId()).isEqualTo(userId);
+        assertThat(updated.categoryCode()).isEqualTo(newCategory);
+        assertThat(updated.title()).isEqualTo(newTitle);
+        assertThat(updated.content()).isEqualTo(newContent);
+        assertThat(updated.likeCount()).isEqualTo(created.likeCount());
     }
 
     @Test
@@ -74,13 +75,13 @@ class PostRepositoryTest {
         String title = "to be deleted";
         String content = "bye";
         Post created = postRepository.create(userId, categoryCode, title, content);
-        Long id = created.getId();
+        Long id = created.id();
 
         // when
         postRepository.deleteById(id);
 
         // then
-        assertTrue(postRepository.findById(id).isEmpty());
+        assertThrows(NoSuchElementException.class, () -> postRepository.getById(id));
     }
 }
 

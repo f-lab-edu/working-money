@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import java.util.Arrays;
+import java.util.Optional;
+import javax.swing.text.html.Option;
 
 public enum PostCategory {
     KOREAN_STOCKS("korean_stocks"),
@@ -22,11 +24,11 @@ public enum PostCategory {
     }
 
     @JsonCreator(mode = JsonCreator.Mode.DELEGATING)
-    public static PostCategory from(String value) {
+    public static Optional<PostCategory> from(String value) {
+
         return Arrays.stream(values())
                 .filter(c -> c.code.equals(value))
-                .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Invalid category: " + value));
+                .findFirst();
     }
 }
 

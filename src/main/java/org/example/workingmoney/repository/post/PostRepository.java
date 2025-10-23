@@ -1,10 +1,10 @@
 package org.example.workingmoney.repository.post;
 
 import lombok.RequiredArgsConstructor;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.example.workingmoney.domain.entity.Post;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,20 +19,27 @@ public class PostRepository {
         return entity.toDomain();
     }
 
-    public Optional<Post> findById(Long id) {
-        return mapper.findById(id).map(PostEntity::toDomain);
+    public Post getById(Long id) {
+        return mapper.getById(id).map(PostEntity::toDomain).orElseThrow();
     }
 
     public Post update(Long id, String userId, String categoryCode, String title, String content) {
-        PostEntity entity = mapper.findById(id).orElseThrow();
+        PostEntity entity = mapper.getById(id).orElseThrow();
         entity.setCategoryCode(categoryCode);
         entity.setTitle(title);
         entity.setContent(content);
         mapper.update(entity);
-        return findById(id).orElseThrow();
+        return getById(id);
     }
 
     public void deleteById(Long id) {
         mapper.deleteById(id);
+    }
+
+    public List<Post> findPosts(String categoryCode, Long cursor, Integer size) {
+        return mapper.findPosts(categoryCode, cursor, size)
+                .stream()
+                .map(PostEntity::toDomain)
+                .toList();
     }
 }
