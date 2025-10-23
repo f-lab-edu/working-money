@@ -58,7 +58,7 @@ class PostServiceTest {
         String title = "title2";
         String content = "content2";
         Post updated = new Post(id, userId, categoryCode, title, content, 3L);
-        when(postRepository.findById(id))
+        when(postRepository.getById(id))
                 .thenReturn(java.util.Optional.of(new Post(id, userId, categoryCode, "title1", "content1", 3L)));
         when(postRepository.update(id, userId, categoryCode, title, content)).thenReturn(updated);
         setAuthenticatedUser(userId);
@@ -68,7 +68,7 @@ class PostServiceTest {
 
         // then
         assertSame(updated, actual);
-        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(1)).getById(id);
         verify(postRepository, times(1)).update(id, userId, categoryCode, title, content);
         verifyNoMoreInteractions(postRepository);
     }
@@ -78,7 +78,7 @@ class PostServiceTest {
         // given
         Long id = 30L;
         String userId = "test@email.com";
-        when(postRepository.findById(id))
+        when(postRepository.getById(id))
                 .thenReturn(java.util.Optional.of(new Post(id, userId, "crypto", "t", "c", 0L)));
         setAuthenticatedUser(userId);
 
@@ -99,7 +99,7 @@ class PostServiceTest {
         String categoryCode = "stock";
         String title = "newTitle";
         String content = "newContent";
-        when(postRepository.findById(id))
+        when(postRepository.getById(id))
                 .thenReturn(java.util.Optional.of(new Post(id, ownerUserId, categoryCode, "old", "old", 0L)));
         setAuthenticatedUser(otherUserId);
 
@@ -107,7 +107,7 @@ class PostServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> postService.update(id, otherUserId, categoryCode, title, content));
         assertEquals("사용자가 작성한 글이 아닙니다.", ex.getMessage());
-        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(1)).getById(id);
         verify(postRepository, never()).update(anyLong(), anyString(), anyString(), anyString(), anyString());
         verifyNoMoreInteractions(postRepository);
     }
@@ -118,7 +118,7 @@ class PostServiceTest {
         Long id = 50L;
         String ownerUserId = "owner@email.com";
         String otherUserId = "other@email.com";
-        when(postRepository.findById(id))
+        when(postRepository.getById(id))
                 .thenReturn(java.util.Optional.of(new Post(id, ownerUserId, "crypto", "t", "c", 0L)));
         setAuthenticatedUser(otherUserId);
 
@@ -126,7 +126,7 @@ class PostServiceTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> postService.delete(id, otherUserId));
         assertEquals("사용자가 작성한 글이 아닙니다.", ex.getMessage());
-        verify(postRepository, times(1)).findById(id);
+        verify(postRepository, times(1)).getById(id);
         verify(postRepository, never()).deleteById(anyLong());
         verifyNoMoreInteractions(postRepository);
     }

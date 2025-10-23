@@ -19,17 +19,17 @@ public class PostRepository {
         return entity.toDomain();
     }
 
-    public Optional<Post> findById(Long id) {
-        return mapper.findById(id).map(PostEntity::toDomain);
+    public Post getById(Long id) {
+        return mapper.getById(id).map(PostEntity::toDomain).orElseThrow();
     }
 
     public Post update(Long id, String userId, String categoryCode, String title, String content) {
-        PostEntity entity = mapper.findById(id).orElseThrow();
+        PostEntity entity = mapper.getById(id).orElseThrow();
         entity.setCategoryCode(categoryCode);
         entity.setTitle(title);
         entity.setContent(content);
         mapper.update(entity);
-        return findById(id).orElseThrow();
+        return getById(id);
     }
 
     public void deleteById(Long id) {

@@ -13,7 +13,7 @@ public interface PostMapper {
 
     void deleteById(Long id);
 
-    Optional<PostEntity> findById(Long id);
+    Optional<PostEntity> getById(Long id);
 
     List<PostEntity> findPosts(String categoryCode, Long cursor, Integer size);
 }

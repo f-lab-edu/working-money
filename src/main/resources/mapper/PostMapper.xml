@@ -23,7 +23,7 @@
     where id = #{id}
   </delete>
 
-  <select id="findById" resultType="org.example.workingmoney.repository.post.PostEntity">
+  <select id="getById" resultType="org.example.workingmoney.repository.post.PostEntity">
     select p.id, p.user_id, p.category_code, p.title, p.content,
            coalesce(pl.like_count, 0) as like_count,
            p.created_at, p.updated_at

@@ -6,7 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.example.workingmoney.domain.entity.Post;
+import org.example.workingmoney.domain.entity.Comment;
 import org.example.workingmoney.repository.common.TimeBaseEntity;
+
+import java.util.List;
 
 @Getter
 @NoArgsConstructor(force = true)
@@ -24,6 +27,8 @@ public class PostEntity extends TimeBaseEntity {
     @Setter
     private String content;
     private final Long likeCount;
+    @Setter
+    private List<Comment> comments;
 
     public PostEntity(
             String userId,
