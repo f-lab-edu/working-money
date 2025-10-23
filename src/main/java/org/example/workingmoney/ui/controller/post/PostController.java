@@ -72,12 +72,10 @@ public class PostController {
         return Response.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/detail")
     public Response<PostDetailResponseDTO> getPostDetail(
             @RequestParam(required = true) Long postId
     ) {
-        postService.getPostById(postId);
-        postService.getCommentsByPostId(postId);
 
         return Response.ok(new PostDetailResponseDTO(
                 postService.getPostById(postId), postService.getCommentsByPostId(postId)));

@@ -1,6 +1,9 @@
 package org.example.workingmoney.ui.controller.post;
 
  
+import org.example.workingmoney.domain.entity.Comment;
+import org.example.workingmoney.domain.entity.CursorSlice;
+import org.example.workingmoney.domain.entity.Post;
 import org.example.workingmoney.service.common.SecurityProvider;
 import org.example.workingmoney.service.post.PostService;
 import org.junit.jupiter.api.AfterEach;
@@ -22,6 +25,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -210,6 +214,58 @@ class PostControllerTest {
     @AfterEach
     void clearSecurityContext() {
         SecurityContextHolder.clearContext();
+    }
+
+    @Test
+    void 게시글_목록_조회_성공_테스트() throws Exception {
+        // given
+        when(postService.findPostsWithCursor(null, null, 20))
+                .thenReturn(new CursorSlice<>(
+                        java.util.List.of(
+                                new Post(3L, "u", "crypto", "t1", "c1", 0L),
+                                new Post(2L, "u", "crypto", "t2", "c2", 0L)
+                        ),
+                        null,
+                        false
+                ));
+
+        // when
+        mockMvc.perform(get("/api/v1/posts").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(1))
+                .andExpect(jsonPath("$.message").value("ok"))
+                .andExpect(jsonPath("$.value.content[0].id").value(3))
+                .andExpect(jsonPath("$.value.hasNext").value(false))
+                .andExpect(jsonPath("$.value.nextCursor").doesNotExist());
+
+        // then
+        verify(postService, times(1)).findPostsWithCursor(null, null, 20);
+    }
+
+    @Test
+    void 게시글_상세_조회_성공_테스트() throws Exception {
+        // given
+        long postId = 10L;
+        var post = new Post(postId, "u", "crypto", "t", "c", 0L);
+        var comments = java.util.List.of(
+                new Comment(1L, postId, "userA", "c1"),
+                new Comment(2L, postId, "userB", "c2")
+        );
+        when(postService.getPostById(postId)).thenReturn(post);
+        when(postService.getCommentsByPostId(postId)).thenReturn(comments);
+
+        // when
+        mockMvc.perform(get("/api/v1/posts/detail").param("postId", String.valueOf(postId)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(1))
+                .andExpect(jsonPath("$.message").value("ok"))
+                .andExpect(jsonPath("$.value.post.id").value(10))
+                .andExpect(jsonPath("$.value.comments[0].content").value("c1"))
+                .andExpect(jsonPath("$.value.comments[1].content").value("c2"));
+
+        // then
+        verify(postService, times(1)).getPostById(postId);
+        verify(postService, times(1)).getCommentsByPostId(postId);
     }
 }
 

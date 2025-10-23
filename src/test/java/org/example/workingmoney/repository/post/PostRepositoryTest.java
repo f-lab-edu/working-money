@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.example.workingmoney.domain.entity.Post;
+import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,7 +31,7 @@ class PostRepositoryTest {
 
         // then
         assertNotNull(created.id());
-        Post found = postRepository.getById(created.id()).orElseThrow();
+        Post found = postRepository.getById(created.id());
         assertThat(found.id()).isEqualTo(created.id());
         assertThat(found.userId()).isEqualTo(userId);
         assertThat(found.categoryCode()).isEqualTo(categoryCode);
@@ -80,7 +81,7 @@ class PostRepositoryTest {
         postRepository.deleteById(id);
 
         // then
-        assertTrue(postRepository.getById(id).isEmpty());
+        assertThrows(NoSuchElementException.class, () -> postRepository.getById(id));
     }
 }
 
